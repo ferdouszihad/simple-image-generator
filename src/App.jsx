@@ -1,14 +1,15 @@
 import { useRef } from "react";
 import "./App.css";
 import { useState } from "react";
+import { postImageBB } from "./utilities";
 
 function App() {
-  const resultRef = useRef();
   const API_KEY = import.meta.env.VITE_IMG_API;
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = (e) => {
+    console.log(e);
     const prompt = e.target.prompt.value;
     if (!prompt || prompt.length < 10) {
       return alert("make bigger prompt");
@@ -26,12 +27,14 @@ function App() {
       body: form,
     })
       .then((response) => response.arrayBuffer())
-      .then((buffer) => {
+      .then(async (buffer) => {
         // buffer here is a binary representation of the returned image
 
-        const file = new Blob([buffer], { type: "image/png" });
-        const url = URL.createObjectURL(file);
-        setImages([url, ...images]);
+        // const file = new Blob([buffer], { type: "image/png" });
+        // const url = URL.createObjectURL(file);
+        const imgData = await postImageBB(buffer, prompt);
+        console.log(imgData);
+        setImages([imgData.data?.url, ...images]);
         setLoading(false);
       });
   };
